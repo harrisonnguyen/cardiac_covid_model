@@ -1,0 +1,13 @@
+,model,accuracy,outcome
+0,baseline_median_impute,0.9168440610484406,intubation_dummy
+1,baseline_median_impute,0.8956788321167883,death
+2,baseline_median_impute,0.94456801592568,cardio_complication
+3,logistic_median,0.9299800928998008,intubation_dummy
+4,logistic_median,0.9117425348374252,death
+5,logistic_median,0.9467551426675512,cardio_complication
+6,logistic+l2_median,0.9328971466489716,intubation_dummy
+7,logistic+l2_median,0.9073656270736564,death
+8,logistic+l2_median,0.947482415394824,cardio_complication
+9,logistic+l1_median,0.9314346383543464,intubation_dummy
+10,logistic+l1_median,0.9080902455209025,death
+11,logistic+l1_median,0.9467551426675513,cardio_complication
