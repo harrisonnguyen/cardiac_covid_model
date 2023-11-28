@@ -1,0 +1,11 @@
+﻿variable,label,min,max
+age,Age (years),0,100
+respiratory,Respiratory Rate (years),0,100
+spo2,SPO2,0,100
+lymphocytes,Lymphocytes,0,100
+wcc,Total white cell count,0,100
+platelets,Platelets,0,100
+ldh,LDH,0,100
+creatinine,Creatinine,0,100
+alt,Alt,0,100
+crp,C-reactive protein,0,100
