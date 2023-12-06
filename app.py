@@ -13,13 +13,13 @@ df_template = pd.read_csv('dataframe_template.csv',index_col=0)
 
 number_variable_df = pd.read_csv('app_number_variable_list.csv',index_col=0)
 
-intubation_pipe = joblib.load("model/adaboost_median_impute_feature_oversample_intubation_dummy_sigmoid_calibration.pickle")
-mortality_pipe = joblib.load("model/adaboost_median_impute_feature_oversample_death_isotonic_calibration.pickle")
-cardiac_pipe = joblib.load("model/rf_selection_median_impute_final_oversample_cardio_complication_sigmoid_calibration.pickle")
+intubation_pipe = joblib.load("model/elasticnet_feature_selection5_oversample_intubation_dummy_sigmoid_calibration.pickle")
+mortality_pipe = joblib.load("model/l1_feature_selection5_oversample_death_isotonic_calibration.pickle")
+cardiac_pipe = joblib.load("model/elasticnet_feature_selection5_oversample_cardio_complication.pickle")
 
 MIN_PROGRESS_BAR = 4
 
-app = Dash(external_stylesheets=[dbc.themes.SANDSTONE,dbc.icons.FONT_AWESOME])
+app = Dash(__name__,external_stylesheets=[dbc.themes.SANDSTONE,dbc.icons.FONT_AWESOME])
 
 server = app.server
 
@@ -40,31 +40,6 @@ for ele in number_variable_df.index:
         )
     card_list.append(card_row)
 
-boolean_var_dict = {
-    'healthworker': 'Healthcare worker',
-    'smoker':'Smoker',
-    'copd':'COPD',
-    'vaccinated':'Vaccinated for COVID-19',
-    'troponin':'Troponin above upper limit normal',
-    'asthma':'History of asthma',
-    'coronaryhistory':'Medicial history of coronary disease',
-    'hypertension':'History of hypertension',
-    'pacemaker':'Pacemaker'
-}
-
-boolean_card_list = []
-for k,v in boolean_var_dict.items():
-    card_row = html.Div(
-            [
-                dbc.Label(v),
-                dbc.Switch(
-                    id='{}-input'.format(k),
-                    value=False,
-                ),
-            ],
-            className='mb-2'
-        )
-    boolean_card_list.append(card_row)
 
 controls = dbc.Card(
     [dbc.Row(
@@ -72,52 +47,89 @@ controls = dbc.Card(
             dbc.Col(card_list,lg=6),
             dbc.Col(
                 [
-        html.Div(
-                [
-                    dbc.Label('Dialysis'),
-                    dbc.RadioItems(
-                        id='dialysis-input',
-                        options=[
-                            {'label':'None','value':0},
-                            {'label':'Currently on dialysis','value':1},
-                            {'label':'Previously on dialysis','value':2}
+                    html.Div(
+                            [
+                                dbc.Label(
+                                    'Sex'),
+                                dbc.RadioItems(
+                                    id='sex-input',
+                                    options = ['Male', 'Female'],
+                                    value= 'Male',
+                                    inline=True
+                                ),
+                            ],
+                            className='mb-2'
+                    ),
+                    html.Div(
+                            [
+                                dbc.Label(
+                                    'COVID-19 vaccination status'),
+                                dbc.RadioItems(
+                                    id='vaccinated-input',
+                                    options = [
+                                        {'label':'Unvaccinated','value':0},
+                                        {'label':'One or more doses','value':1}, 
+                                    ],
+                                    value= 0,
+                                    inline=True
+                                ),
+                            ],
+                            className='mb-2'
+                    ),
+                    html.Div(
+                        [
+                            dbc.Label('Coronary artery disease',id="coronary-tooltip",style={"textDecoration": "underline", "cursor": "help",'text-decoration-style': 'dotted','text-underline-offset':'0.3rem'},color='info'),
+                            dbc.Tooltip(
+                                html.P(
+                                    "Prior MI, PCI, >50% stenosis of an epicardial vessel on CT coronary angiogram or invasive coronary angiography and/or angina",style={'text-transform':'none'}
+                                ),
+                                target="coronary-tooltip"
+                            ),
+                            dbc.Switch(
+                                id='coronaryhistory-input',
+                                value=False,
+                            ),
                         ],
-                        value=0,
-                        inline=True
+                        className='mb-2'
                     ),
-                ],
-                className='mb-2'
-            ),
-            html.Div(
-                [
-                    dbc.Label(
-                        'Chest xray'),
-                    dbc.RadioItems(
-                        id='chestxray-input',
-                        options = [
-                            {'label':'No xray available','value':0},
-                            {'label':'Features of COVID-19 present','value':1},
-                            {'label':'No features of COVID-19 present','value':2}
+                    html.Div(
+                        [
+                            dbc.Label('Current or recent smoker (< 1 year)'),
+                            dbc.Switch(
+                                id='smoker-input',
+                                value=False,
+                            ),
                         ],
-                        value= 0
+                        className='mb-2'
                     ),
-                ],
-                className='mb-2'
-            ),
-            html.Div(
-                [
-                    dbc.Label(
-                        'Sex'),
-                    dbc.RadioItems(
-                        id='sex-input',
-                        options = ['Male', 'Female'],
-                        value= 'Male',
-                        inline=True
+                    html.Div(
+                        [
+                            dbc.Label('Any troponin measurement above the upper limit of normal'),
+                            dbc.Switch(
+                                id='troponin-input',
+                                value=False,
+                            ),
+                        ],
+                        className='mb-2'
                     ),
-                ],
-                className='mb-2'
-            )]
-        + boolean_card_list
+                    html.Div(
+                        [
+                            dbc.Label(
+                                'First chest Xray during admission'),
+                            dbc.RadioItems(
+                                id='chestxray-input',
+                                options = [
+                                    {'label':'No Xray available','value':0},
+                                    {'label':'Features of COVID-19 present','value':1},
+                                    {'label':'No features of COVID-19 present','value':2}
+                                ],
+                                value= 0
+                            ),
+                        ],
+                        className='mb-2'
+                    ),
+                    
+           ]
             )
 
         ]
@@ -217,7 +229,7 @@ navbar = dbc.NavbarSimple(
     children=[
         offcanvas
     ],
-    brand="AUS-COVID Risk Prediction Algorithm",
+    brand="AUS-COVID Risk Calculator",
     color="primary",
     dark=True,
     class_name='mb-3',
@@ -269,7 +281,7 @@ app.layout = html.Div(
 )
 
 @callback(
-    Output('table-content', 'children'),
+    #Output('table-content', 'children'),
     Output('intubation-prob', 'value'),
     Output('intubation-prob', 'label'),
     Output('mortality-prob', 'value'),
@@ -280,54 +292,27 @@ app.layout = html.Div(
     State('age-input', 'value'),
     State('respiratory-input', 'value'),
     State('spo2-input', 'value'),
-    State('lymphocytes-input', 'value'),
-    State('wcc-input', 'value'),
-    State('platelets-input', 'value'),
-    State('ldh-input', 'value'),
     State('creatinine-input', 'value'),
-    State('alt-input', 'value'),
-    State('crp-input', 'value'),
-    State('dialysis-input', 'value'),
     State('chestxray-input', 'value'),
     State('sex-input', 'value'),
-    State('healthworker-input', 'value'),
     State('smoker-input', 'value'),
-    State('copd-input', 'value'),
     State('vaccinated-input', 'value'),
     State('troponin-input', 'value'),
-    State('asthma-input', 'value'),
     State('coronaryhistory-input', 'value'),
-    State('hypertension-input', 'value'),
-    State('pacemaker-input', 'value'),
     prevent_initial_call=True
 )
-def predict_risk(n_clicks,age,respiratory,spo2,lymphocytes,wcc,platelets,ldh,
-                 creatinine,alt,crp,dialysis,chestxray,sex,healthworker,smoker,copd,
-                 vaccinated,troponin,asthma,coronaryhistory,hypertension,pacemaker):
+def predict_risk(n_clicks,age,respiratory,spo2,
+                 creatinine,chestxray,sex,smoker,
+                 vaccinated,troponin,coronaryhistory):
     first_row = 0
     df_template.loc[first_row,'age'] = age
     df_template.loc[first_row,'respiratory_rate'] = respiratory
     df_template.loc[first_row,'spo2'] = spo2
-    df_template.loc[first_row,'lymphocytes'] = lymphocytes
-    df_template.loc[first_row,'total_wcc'] = wcc
-    df_template.loc[first_row,'platelets'] = platelets
-    df_template.loc[first_row,'ldh'] = ldh
     df_template.loc[first_row,'creatinine'] = creatinine
-    df_template.loc[first_row,'alt'] = alt
-    df_template.loc[first_row,'crp'] = crp
 
     
     # dummy variables
-    if dialysis == 0:
-        df_template.loc[first_row,'dialysis_2.0'] = 0
-        df_template.loc[first_row, 'dialysis_3.0'] = 1
-    elif dialysis == 1:
-        df_template.loc[first_row, 'dialysis_2.0'] = 0
-        df_template.loc[first_row, 'dialysis_3.0'] = 0
-    else:
-        df_template.loc[first_row, 'dialysis_2.0'] = 1
-        df_template.loc[first_row, 'dialysis_3.0'] = 0
-
+    
 
     if chestxray == 0:
         df_template.loc[first_row, 'chest_xray_2'] = 0
@@ -343,31 +328,19 @@ def predict_risk(n_clicks,age,respiratory,spo2,lymphocytes,wcc,platelets,ldh,
         df_template.loc[first_row, 'sex_2'] = 0
     else:
         df_template.loc[first_row, 'sex_2'] = 1
-    
-    if healthworker:
-        df_template.loc[first_row, 'healthcare_worker_2.0'] = 0
-    else:
-        df_template.loc[first_row, 'healthcare_worker_2.0'] = 1
+
 
     if smoker:
         df_template.loc[first_row, 'smoker_2.0'] = 0
     else:
         df_template.loc[first_row, 'smoker_2.0'] = 1
+
     
-    if copd:
-        df_template.loc[first_row, 'copd_2.0'] = 0
-    else:
-        df_template.loc[first_row, 'copd_2.0'] = 1
-    
-    if vaccinated:
+    if vaccinated == 1:
         df_template.loc[first_row, 'vaccinated_1'] = 1
     else:
         df_template.loc[first_row, 'vaccinated_1'] = 0
 
-    if asthma:
-        df_template.loc[first_row, 'asthma_2.0'] = 0
-    else:
-        df_template.loc[first_row, 'asthma_2.0'] = 1
     
     if troponin:
         df_template.loc[first_row, 'troponin_uln_2.0'] = 0
@@ -378,28 +351,13 @@ def predict_risk(n_clicks,age,respiratory,spo2,lymphocytes,wcc,platelets,ldh,
         df_template.loc[first_row, 'coronary_med_history_col_True'] = 1
     else:
         df_template.loc[first_row, 'coronary_med_history_col_True'] = 0
-    
-    if hypertension:
-        df_template.loc[first_row, 'hypertension_2.0'] = 0
-    else:
-        df_template.loc[first_row, 'hypertension_2.0'] = 1
-    
-    if pacemaker:
-        df_template.loc[first_row, 'pacemaker_1'] = 1
-    else:
-        df_template.loc[first_row, 'pacemaker_1'] = 0
 
     if (
         check_age_validity(age) or  
         check_respiratory_validity(respiratory) or  
         check_spo2_validity(spo2) or
-        check_lymphocytes_validity(lymphocytes) or
-        check_wcc_validity(wcc) or
-        check_platelets_validity(platelets) or
-        check_ldh_validity(ldh) or
-        check_creatinine_validity(creatinine) or
-        check_alt_validity(alt) or
-        check_crp_validity(crp)):
+        check_creatinine_validity(creatinine)
+    ):
         return (
             dbc.Table.from_dataframe(df_template),
             MIN_PROGRESS_BAR,
@@ -429,11 +387,10 @@ def predict_risk(n_clicks,age,respiratory,spo2,lymphocytes,wcc,platelets,ldh,
         mortality_pred = MIN_PROGRESS_BAR
     if cardiac_pred < MIN_PROGRESS_BAR:
         cardiac_pred = MIN_PROGRESS_BAR
-    print(df_template)
     
 
     return (
-        dbc.Table.from_dataframe(df_template),
+        #dbc.Table.from_dataframe(df_template),
         intubation_pred,
         intubation_prob,
         mortality_pred,
@@ -487,42 +444,7 @@ def check_spo2_validity(value):
         is_invalid = value < number_variable_df.loc["spo2","min"] or value > number_variable_df.loc["spo2","max"]
         return is_invalid
     return False
-@app.callback(
-    Output("lymphocytes-input", "invalid"),
-    Input("lymphocytes-input", "value"),
-)
-def check_lymphocytes_validity(value):
-    if value:
-        is_invalid = value < number_variable_df.loc["lymphocytes","min"] or value > number_variable_df.loc["lymphocytes","max"]
-        return is_invalid
-    return False
-@app.callback(
-    Output("wcc-input", "invalid"),
-    Input("wcc-input", "value"),
-)
-def check_wcc_validity(value):
-    if value:
-        is_invalid = value < number_variable_df.loc["wcc","min"] or value > number_variable_df.loc["wcc","max"]
-        return is_invalid
-    return False
-@app.callback(
-    Output("platelets-input", "invalid"),
-    Input("platelets-input", "value"),
-)
-def check_platelets_validity(value):
-    if value:
-        is_invalid = value < number_variable_df.loc["platelets","min"] or value > number_variable_df.loc["platelets","max"]
-        return is_invalid
-    return False
-@app.callback(
-    Output("ldh-input", "invalid"),
-    Input("ldh-input", "value"),
-)
-def check_ldh_validity(value):
-    if value:
-        is_invalid = value < number_variable_df.loc["ldh","min"] or value > number_variable_df.loc["ldh","max"]
-        return is_invalid
-    return False
+
 @app.callback(
     Output("creatinine-input", "invalid"),
     Input("creatinine-input", "value"),
@@ -532,26 +454,6 @@ def check_creatinine_validity(value):
         is_invalid = value < number_variable_df.loc["creatinine","min"] or value > number_variable_df.loc["creatinine","max"]
         return is_invalid
     return False
-@app.callback(
-    Output("alt-input", "invalid"),
-    Input("alt-input", "value"),
-)
-def check_alt_validity(value):
-    if value:
-        is_invalid = value < number_variable_df.loc["alt","min"] or value > number_variable_df.loc["alt","max"]
-        return is_invalid
-    return False
-@app.callback(
-    Output("crp-input", "invalid"),
-    Input("crp-input", "value"),
-)
-def check_crp_validity(value):
-    if value:
-        is_invalid = value < number_variable_df.loc["crp","min"] or value > number_variable_df.loc["crp","max"]
-        return is_invalid
-    return False
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
