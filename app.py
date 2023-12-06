@@ -229,7 +229,7 @@ navbar = dbc.NavbarSimple(
     children=[
         offcanvas
     ],
-    brand="AUS-COVID Risk Calculator",
+    brand="AUS-COVID Risk Score",
     color="primary",
     dark=True,
     class_name='mb-3',
