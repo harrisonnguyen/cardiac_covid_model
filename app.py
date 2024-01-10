@@ -78,10 +78,10 @@ controls = dbc.Card(
                     ),
                     html.Div(
                         [
-                            dbc.Label('Coronary artery disease',id="coronary-tooltip",style={"textDecoration": "underline", "cursor": "help",'text-decoration-style': 'dotted','text-underline-offset':'0.3rem'},color='info'),
+                            dbc.Label('Pre-existing cardiovascular disease',id="coronary-tooltip",style={"textDecoration": "underline", "cursor": "help",'text-decoration-style': 'dotted','text-underline-offset':'0.3rem'},color='info'),
                             dbc.Tooltip(
                                 html.P(
-                                    "Prior MI, PCI, >50% stenosis of an epicardial vessel on CT coronary angiogram or invasive coronary angiography and/or angina",style={'text-transform':'none'}
+                                    "Pre-existing cardiovascular disease is defined as a composite of pre-existing coronary artery disease, heart failure or cardiomyopathy, atrial fibrillation or flutter, severe valvular disease, peripheral arterial disease and stroke or transient ischaemic attack.",style={'text-transform':'none'}
                                 ),
                                 target="coronary-tooltip"
                             ),
