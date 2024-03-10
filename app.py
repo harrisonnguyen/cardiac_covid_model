@@ -203,17 +203,19 @@ offcanvas = html.Div(
         dbc.Offcanvas(
             [
                 html.P(
-                    "Some description of the project. "
+                    """
+                        The AUS-COVID Score is a machine-learning based risk prediction score for in-hospital mortality, intubation and adverse cardiovascular events in patients hospitalised with COVID-19. 
+                        This score has been derived from a prospective cohort of 1714 consecutive patients hospitalised with COVID-19 across 21 Australian hospitals."""
                 ),
-                html.P(
-                    [
-                        "Paper  ", html.A("link", href="https://github.com/harrisonnguyen/",)
-                    ]
-                ),
+                #html.P(
+                #    [
+                #        "Paper  ", html.A("link", href="https://github.com/harrisonnguyen/",)
+                #    ]
+                #),
                 html.P(
                     [
                         "Code of the metholody and application can be found on ", 
-                        html.A("github", href="https://github.com/harrisonnguyen/cardiac_covid_model")
+                        html.A("github", href="https://github.com/harisritharan/cardiac_covid_model")
                     ]
                 )
                 ],
