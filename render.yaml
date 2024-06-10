@@ -1,0 +1,14 @@
+# Exported from Render on 2024-06-10T12:11:02Z
+services:
+- type: web
+  name: the-aus-covid-risk-score
+  runtime: python
+  repo: https://github.com/harrisonnguyen/cardiac_covid_model
+  plan: free
+  envVars:
+  - key: PYTHON_VERSION
+    sync: false
+  region: singapore
+  buildCommand: pip install -r requirements.txt
+  startCommand: gunicorn app:server
+version: "1"
