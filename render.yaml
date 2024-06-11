@@ -8,7 +8,6 @@ services:
   envVars:
   - key: PYTHON_VERSION
     value: 3.9.16
-    sync: false
   region: singapore
   buildCommand: pip install -r requirements.txt
   startCommand: gunicorn app:server
