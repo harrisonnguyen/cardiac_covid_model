@@ -1,7 +1,7 @@
 # Exported from Render on 2024-06-10T12:11:02Z
 services:
 - type: web
-  name: the-aus-covid-risk-score
+  name: cardiac-covid-model
   runtime: python
   repo: https://github.com/harrisonnguyen/cardiac_covid_model
   plan: free
